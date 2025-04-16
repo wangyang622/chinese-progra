@@ -34,6 +34,7 @@ documents.onDidChangeContent(change => {
 connection.onCompletion(() => {
     // 返回中文关键字和函数补全列表
     return [
+        // 基本控制结构
         {
             label: '如果',
             kind: node_1.CompletionItemKind.Keyword,
@@ -97,12 +98,136 @@ connection.onCompletion(() => {
             detail: '返回语句',
             documentation: '返回 值;'
         },
+        // 错误处理
+        {
+            label: '尝试',
+            kind: node_1.CompletionItemKind.Keyword,
+            data: 11,
+            detail: '异常处理',
+            documentation: '尝试 { ... } 捕获 (错误) { ... }'
+        },
+        {
+            label: '捕获',
+            kind: node_1.CompletionItemKind.Keyword,
+            data: 12,
+            detail: '异常处理',
+            documentation: '尝试 { ... } 捕获 (错误) { ... }'
+        },
+        {
+            label: '最终',
+            kind: node_1.CompletionItemKind.Keyword,
+            data: 13,
+            detail: '异常处理',
+            documentation: '尝试 { ... } 捕获 (错误) { ... } 最终 { ... }'
+        },
+        {
+            label: '抛出',
+            kind: node_1.CompletionItemKind.Keyword,
+            data: 14,
+            detail: '异常处理',
+            documentation: '抛出 new 错误("错误信息");'
+        },
+        // 面向对象
+        {
+            label: '类',
+            kind: node_1.CompletionItemKind.Keyword,
+            data: 15,
+            detail: '类定义',
+            documentation: '类 类名 { ... }'
+        },
+        {
+            label: '继承',
+            kind: node_1.CompletionItemKind.Keyword,
+            data: 16,
+            detail: '类继承',
+            documentation: '类 子类 继承 父类 { ... }'
+        },
+        {
+            label: '这个',
+            kind: node_1.CompletionItemKind.Keyword,
+            data: 17,
+            detail: '指向当前对象',
+            documentation: '这个.属性'
+        },
+        // 异步编程
+        {
+            label: '异步',
+            kind: node_1.CompletionItemKind.Keyword,
+            data: 18,
+            detail: '异步函数',
+            documentation: '异步 函数 名称() { ... }'
+        },
+        {
+            label: '等待',
+            kind: node_1.CompletionItemKind.Keyword,
+            data: 19,
+            detail: '等待异步操作完成',
+            documentation: '等待 异步操作;'
+        },
+        // 函数
         {
             label: '输出',
             kind: node_1.CompletionItemKind.Function,
-            data: 10,
+            data: 20,
             detail: '控制台输出',
             documentation: '输出(内容);'
+        },
+        {
+            label: '警告',
+            kind: node_1.CompletionItemKind.Function,
+            data: 21,
+            detail: '控制台警告',
+            documentation: '警告(内容);'
+        },
+        {
+            label: '错误',
+            kind: node_1.CompletionItemKind.Function,
+            data: 22,
+            detail: '控制台错误',
+            documentation: '错误(内容);'
+        },
+        {
+            label: '定时器',
+            kind: node_1.CompletionItemKind.Function,
+            data: 23,
+            detail: '延时执行',
+            documentation: '定时器(() => { ... }, 毫秒时间);'
+        },
+        {
+            label: '间隔器',
+            kind: node_1.CompletionItemKind.Function,
+            data: 24,
+            detail: '定时重复执行',
+            documentation: '间隔器(() => { ... }, 间隔毫秒);'
+        },
+        // 常量
+        {
+            label: '真',
+            kind: node_1.CompletionItemKind.Keyword,
+            data: 25,
+            detail: '布尔值',
+            documentation: '布尔值true'
+        },
+        {
+            label: '假',
+            kind: node_1.CompletionItemKind.Keyword,
+            data: 26,
+            detail: '布尔值',
+            documentation: '布尔值false'
+        },
+        {
+            label: '空',
+            kind: node_1.CompletionItemKind.Keyword,
+            data: 27,
+            detail: '空值',
+            documentation: '空值null'
+        },
+        {
+            label: '未定义',
+            kind: node_1.CompletionItemKind.Keyword,
+            data: 28,
+            detail: '未定义值',
+            documentation: '未定义值undefined'
         }
     ];
 });
@@ -135,7 +260,23 @@ connection.onHover((params) => {
         '返回': '返回语句，等同于JavaScript中的return',
         '变量': '变量定义，等同于JavaScript中的let',
         '常量': '常量定义，等同于JavaScript中的const',
-        '输出': '输出函数，等同于JavaScript中的console.log'
+        '输出': '输出函数，等同于JavaScript中的console.log',
+        '尝试': '异常处理，等同于JavaScript中的try',
+        '捕获': '异常处理，等同于JavaScript中的catch',
+        '最终': '异常处理，等同于JavaScript中的finally',
+        '抛出': '抛出异常，等同于JavaScript中的throw',
+        '类': '类定义，等同于JavaScript中的class',
+        '继承': '类继承，等同于JavaScript中的extends',
+        '实现': '接口实现，等同于JavaScript中的implements',
+        '接口': '接口定义，等同于JavaScript中的interface',
+        '异步': '异步函数，等同于JavaScript中的async',
+        '等待': '等待异步操作完成，等同于JavaScript中的await',
+        '定时器': '延迟执行函数，等同于JavaScript中的setTimeout',
+        '间隔器': '定时重复执行，等同于JavaScript中的setInterval',
+        '真': '布尔值真，等同于JavaScript中的true',
+        '假': '布尔值假，等同于JavaScript中的false',
+        '空': '空值，等同于JavaScript中的null',
+        '未定义': '未定义值，等同于JavaScript中的undefined'
     };
     if (word in keywordMap) {
         return {
