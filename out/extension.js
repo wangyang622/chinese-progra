@@ -31,153 +31,71 @@ const vscode_1 = __importDefault(require("vscode"));
 const path = __importStar(require("path"));
 const fs = __importStar(require("fs"));
 const translator_1 = require("./translator");
-const node_1 = require("vscode-languageclient/node");
-let client;
 function activate(context) {
-    console.log('中文编程语言扩展已激活');
+    console.log('Chinese Code Runner activated');
     // 创建转译器实例
     const translator = new translator_1.ChineseTranslator();
-    // 注册转译并运行命令
+    // 创建输出通道
+    const outputChannel = vscode_1.default.window.createOutputChannel('Chinese Code Runner');
+    // 注册运行命令
     const runCommand = vscode_1.default.commands.registerCommand('chineseprog.runCode', async () => {
         const editor = vscode_1.default.window.activeTextEditor;
         if (!editor) {
-            vscode_1.default.window.showErrorMessage('没有打开的文件');
+            vscode_1.default.window.showErrorMessage('No file is open');
             return;
         }
-        if (editor.document.languageId !== 'chineseprog') {
-            vscode_1.default.window.showErrorMessage('当前文件不是中文编程文件');
-            return;
-        }
+        // 获取文件内容和路径
         const sourceCode = editor.document.getText();
+        const sourceFilePath = editor.document.uri.fsPath;
+        const sourceFileDir = path.dirname(sourceFilePath);
+        const sourceFileName = path.basename(sourceFilePath, path.extname(sourceFilePath));
+        const outputJsFile = path.join(sourceFileDir, sourceFileName + '.js');
         try {
-            // 创建输出窗口（提前创建，以便显示调试信息）
-            const outputChannel = vscode_1.default.window.createOutputChannel('中文编程');
+            // 显示输出窗口
+            outputChannel.clear();
             outputChannel.show();
-            outputChannel.appendLine('开始转译中文程序...');
-            outputChannel.appendLine('源代码:');
+            outputChannel.appendLine('Starting translation...');
+            outputChannel.appendLine('Source code:');
             outputChannel.appendLine('-----------------------------------');
             outputChannel.appendLine(sourceCode);
             outputChannel.appendLine('-----------------------------------');
             // 转译中文代码到JavaScript
             const translatedCode = translator.translate(sourceCode);
-            outputChannel.appendLine('转译后代码:');
+            outputChannel.appendLine('Translated code:');
             outputChannel.appendLine('-----------------------------------');
             outputChannel.appendLine(translatedCode);
             outputChannel.appendLine('-----------------------------------');
-            // 创建临时JS文件
-            const tempDir = path.join(context.extensionPath, 'temp');
-            if (!fs.existsSync(tempDir)) {
-                fs.mkdirSync(tempDir);
-            }
-            const tempFile = path.join(tempDir, 'translated.js');
-            fs.writeFileSync(tempFile, translatedCode);
-            outputChannel.appendLine('临时文件路径: ' + tempFile);
-            outputChannel.appendLine('运行中文程序...');
+            // 创建JS文件在同一目录
+            fs.writeFileSync(outputJsFile, translatedCode);
+            outputChannel.appendLine('Generated JavaScript file: ' + outputJsFile);
+            outputChannel.appendLine('Running code...');
             // 使用Node.js运行转译后的代码
             const { exec } = require('child_process');
-            exec(`node "${tempFile}"`, (error, stdout, stderr) => {
+            exec(`node "${outputJsFile}"`, (error, stdout, stderr) => {
                 if (error) {
-                    outputChannel.appendLine(`错误: ${error.message}`);
+                    outputChannel.appendLine(`Error: ${error.message}`);
                     return;
                 }
                 if (stderr) {
-                    outputChannel.appendLine(`stderr: ${stderr}`);
+                    outputChannel.appendLine(`Stderr: ${stderr}`);
                     return;
                 }
-                outputChannel.appendLine(`输出:\n${stdout}`);
+                outputChannel.appendLine(`Output:\n${stdout}`);
             });
         }
         catch (error) {
             if (error instanceof Error) {
-                vscode_1.default.window.showErrorMessage(`转译错误: ${error.message}`);
+                vscode_1.default.window.showErrorMessage(`Translation error: ${error.message}`);
             }
             else {
-                vscode_1.default.window.showErrorMessage(`转译错误: ${String(error)}`);
+                vscode_1.default.window.showErrorMessage(`Translation error: ${String(error)}`);
             }
         }
     });
-    // 注册代码提示功能
-    const completionProvider = vscode_1.default.languages.registerCompletionItemProvider('chineseprog', {
-        provideCompletionItems() {
-            const completionItems = [
-                new vscode_1.default.CompletionItem('如果', vscode_1.default.CompletionItemKind.Keyword),
-                new vscode_1.default.CompletionItem('否则', vscode_1.default.CompletionItemKind.Keyword),
-                new vscode_1.default.CompletionItem('否则如果', vscode_1.default.CompletionItemKind.Keyword),
-                new vscode_1.default.CompletionItem('循环', vscode_1.default.CompletionItemKind.Keyword),
-                new vscode_1.default.CompletionItem('当', vscode_1.default.CompletionItemKind.Keyword),
-                new vscode_1.default.CompletionItem('函数', vscode_1.default.CompletionItemKind.Keyword),
-                new vscode_1.default.CompletionItem('返回', vscode_1.default.CompletionItemKind.Keyword),
-                new vscode_1.default.CompletionItem('变量', vscode_1.default.CompletionItemKind.Keyword),
-                new vscode_1.default.CompletionItem('常量', vscode_1.default.CompletionItemKind.Keyword),
-                new vscode_1.default.CompletionItem('输出', vscode_1.default.CompletionItemKind.Function),
-                new vscode_1.default.CompletionItem('警告', vscode_1.default.CompletionItemKind.Function),
-                new vscode_1.default.CompletionItem('错误', vscode_1.default.CompletionItemKind.Function),
-                new vscode_1.default.CompletionItem('信息', vscode_1.default.CompletionItemKind.Function),
-            ];
-            return completionItems;
-        }
-    });
-    // 注册命令到VSCode命令面板
-    context.subscriptions.push(runCommand, completionProvider, 
-    // 添加运行按钮到编辑器右上角
-    vscode_1.default.window.registerWebviewViewProvider('chineseprog.runView', {
-        resolveWebviewView(webviewView) {
-            webviewView.webview.options = {
-                enableScripts: true
-            };
-            webviewView.webview.html = `
-          <html>
-            <body>
-              <button id="runBtn" style="padding: 8px 12px; background-color: #0078D7; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; width: 100%; margin-top: 10px;">运行中文代码</button>
-              <script>
-                const vscode = acquireVsCodeApi();
-                document.getElementById('runBtn').addEventListener('click', () => {
-                  vscode.postMessage({ command: 'run' });
-                });
-                window.addEventListener('message', event => {
-                  const message = event.data;
-                });
-              </script>
-            </body>
-          </html>
-        `;
-            webviewView.webview.onDidReceiveMessage((message) => {
-                if (message.command === 'run') {
-                    vscode_1.default.commands.executeCommand('chineseprog.runCode');
-                }
-            });
-        }
-    }));
-    try {
-        // 启动语言服务器
-        const serverModule = context.asAbsolutePath(path.join('out', 'server.js'));
-        const serverOptions = {
-            run: { module: serverModule, transport: node_1.TransportKind.ipc },
-            debug: {
-                module: serverModule,
-                transport: node_1.TransportKind.ipc,
-                options: { execArgv: ['--nolazy', '--inspect=6009'] }
-            }
-        };
-        const clientOptions = {
-            documentSelector: [{ scheme: 'file', language: 'chineseprog' }],
-            synchronize: {
-                fileEvents: vscode_1.default.workspace.createFileSystemWatcher('**/.clientrc')
-            }
-        };
-        client = new node_1.LanguageClient('chineseLanguageServer', '中文编程语言服务器', serverOptions, clientOptions);
-        client.start();
-    }
-    catch (error) {
-        console.error('语言服务器启动失败:', error);
-    }
+    // 添加到订阅列表
+    context.subscriptions.push(runCommand);
 }
 exports.activate = activate;
-function deactivate() {
-    if (!client) {
-        return undefined;
-    }
-    return client.stop();
-}
+function deactivate() { }
 exports.deactivate = deactivate;
 //# sourceMappingURL=extension.js.map
