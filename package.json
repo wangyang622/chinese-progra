@@ -1,0 +1,99 @@
+{
+  "name": "chinese-programming-language",
+  "displayName": "中文编程语言",
+  "description": "VSCode中的中文编程语言支持",
+  "version": "0.1.0",
+  "publisher": "Sun",
+  "author": {
+    "name": "Sun"
+  },
+  "icon": "logo.jpeg",
+  "homepage": "https://github.com/wangyang622/chinese-progra",
+  "engines": {
+    "vscode": "^1.60.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wangyang622/chinese-progra"
+  },
+  "bugs": {
+    "url": "https://github.com/wangyang622/chinese-progra/issues"
+  },
+  "contributes": {
+    "languages": [{
+      "id": "chineseprog",
+      "aliases": ["中文编程", "ChineseProg"],
+      "extensions": [".zs"],
+      "configuration": "./language-configuration.json"
+    }],
+    "grammars": [{
+      "language": "chineseprog",
+      "scopeName": "source.chineseprog",
+      "path": "./syntaxes/chineseprog.tmLanguage.json"
+    }],
+    "commands": [
+      {
+        "command": "chineseprog.runCode",
+        "title": "运行中文程序",
+        "category": "中文编程"
+      }
+    ],
+    "menus": {
+      "editor/title": [
+        {
+          "when": "editorLangId == chineseprog",
+          "command": "chineseprog.runCode",
+          "group": "navigation"
+        }
+      ]
+    },
+    "views": {
+      "explorer": [
+        {
+          "id": "chineseprog.runView",
+          "name": "中文编程"
+        }
+      ]
+    },
+    "configuration": {
+      "type": "object",
+      "title": "中文编程",
+      "properties": {
+        "chineseprog.enableDiagnostics": {
+          "type": "boolean",
+          "default": true,
+          "description": "启用代码诊断"
+        }
+      }
+    }
+  },
+  "activationEvents": [
+    "onLanguage:chineseprog"
+  ],
+  "main": "./out/extension.js",
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "lint": "eslint src --ext ts",
+    "watch": "tsc -watch -p ./"
+  },
+  "dependencies": {
+    "@types/node": "^16.0.0",
+    "@types/vscode": "^1.60.0",
+    "vscode-languageserver": "^8.0.2",
+    "vscode-languageclient": "^8.0.2",
+    "vscode-languageserver-textdocument": "^1.0.7",
+    "typescript": "^4.5.0"
+  },
+  "devDependencies": {
+    "@types/node": "^16.0.0",
+    "@types/vscode": "^1.60.0",
+    "@typescript-eslint/eslint-plugin": "^5.0.0",
+    "@typescript-eslint/parser": "^5.0.0",
+    "eslint": "^8.0.0",
+    "typescript": "^4.5.0"
+  }
+} 

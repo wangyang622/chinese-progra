@@ -1,0 +1,72 @@
+{
+    "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+    "name": "中文编程",
+    "patterns": [
+        {
+            "include": "#keywords"
+        },
+        {
+            "include": "#strings"
+        },
+        {
+            "include": "#numbers"
+        },
+        {
+            "include": "#functions"
+        },
+        {
+            "include": "#comments"
+        }
+    ],
+    "repository": {
+        "keywords": {
+            "patterns": [
+                {
+                    "name": "keyword.control.chineseprog",
+                    "match": "\\b(如果|否则|否则如果|循环|当|函数|返回|变量|常量|类|继承|实现|接口|导入|导出|从|异步|等待|尝试|捕获|最终|抛出|新建|删除|真|假|空|未定义|结构|枚举)\\b"
+                }
+            ]
+        },
+        "strings": {
+            "name": "string.quoted.double.chineseprog",
+            "begin": "\"",
+            "end": "\"",
+            "patterns": [
+                {
+                    "name": "constant.character.escape.chineseprog",
+                    "match": "\\\\."
+                }
+            ]
+        },
+        "numbers": {
+            "patterns": [
+                {
+                    "name": "constant.numeric.chineseprog",
+                    "match": "\\b[0-9]+(\\.([0-9])+)?\\b"
+                }
+            ]
+        },
+        "functions": {
+            "patterns": [
+                {
+                    "name": "entity.name.function.chineseprog",
+                    "match": "\\b(输出|警告|错误|信息|断言|计时开始|计时结束|日期|数学|随机|最大值|最小值|绝对值|四舍五入|上取整|下取整|解析整数|解析浮点数|定时器|间隔器|清除定时器|清除间隔器|承诺|文档|窗口)\\b"
+                }
+            ]
+        },
+        "comments": {
+            "patterns": [
+                {
+                    "name": "comment.line.double-slash.chineseprog",
+                    "match": "//.*$"
+                },
+                {
+                    "name": "comment.block.chineseprog",
+                    "begin": "/\\*",
+                    "end": "\\*/"
+                }
+            ]
+        }
+    },
+    "scopeName": "source.chineseprog"
+} 
