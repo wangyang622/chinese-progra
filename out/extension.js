@@ -31,10 +31,13 @@ const vscode_1 = __importDefault(require("vscode"));
 const path = __importStar(require("path"));
 const fs = __importStar(require("fs"));
 const translator_1 = require("./translator");
+const formatter_1 = require("./formatter");
 function activate(context) {
     console.log('Chinese Code Runner activated');
     // 创建转译器实例
     const translator = new translator_1.ChineseTranslator();
+    // 创建格式化器实例
+    const formatter = new formatter_1.ChineseFormatter();
     // 创建输出通道
     const outputChannel = vscode_1.default.window.createOutputChannel('Chinese Code Runner');
     // 注册运行命令
@@ -92,8 +95,55 @@ function activate(context) {
             }
         }
     });
+    // 注册格式化命令
+    const formatCommand = vscode_1.default.commands.registerCommand('chineseprog.formatCode', async () => {
+        const editor = vscode_1.default.window.activeTextEditor;
+        if (!editor || editor.document.languageId !== 'chineseprog') {
+            return;
+        }
+        try {
+            // 通过VSCode API执行格式化操作
+            await vscode_1.default.commands.executeCommand('editor.action.formatDocument');
+            vscode_1.default.window.showInformationMessage('代码格式化成功');
+        }
+        catch (error) {
+            vscode_1.default.window.showErrorMessage(`格式化错误: ${error}`);
+        }
+    });
+    // 注册文档格式化提供程序
+    const docFormattingProvider = vscode_1.default.languages.registerDocumentFormattingEditProvider('chineseprog', {
+        provideDocumentFormattingEdits: (document, options) => {
+            return formatter.provideDocumentFormattingEdits(document, options);
+        }
+    });
+    // 注册区域格式化提供程序
+    const rangeFormattingProvider = vscode_1.default.languages.registerDocumentRangeFormattingEditProvider('chineseprog', {
+        provideDocumentRangeFormattingEdits: (document, range, options) => {
+            return formatter.provideDocumentRangeFormattingEdits(document, range, options);
+        }
+    });
+    // 监听保存前事件，实现保存时自动格式化
+    const onWillSaveTextDocument = vscode_1.default.workspace.onWillSaveTextDocument((event) => {
+        // 检查是否是中文编程文件
+        if (event.document.languageId === 'chineseprog') {
+            // 获取是否开启保存时自动格式化
+            const config = vscode_1.default.workspace.getConfiguration('chineseprog');
+            const formatOnSave = config.get('formatOnSave', true);
+            if (formatOnSave) {
+                // 添加格式化操作到保存操作中
+                const formattingEdit = vscode_1.default.commands.executeCommand('editor.action.formatDocument');
+                if (formattingEdit instanceof Promise) {
+                    event.waitUntil(formattingEdit.then(() => []));
+                }
+            }
+        }
+    });
     // 添加到订阅列表
     context.subscriptions.push(runCommand);
+    context.subscriptions.push(formatCommand);
+    context.subscriptions.push(docFormattingProvider);
+    context.subscriptions.push(rangeFormattingProvider);
+    context.subscriptions.push(onWillSaveTextDocument);
 }
 exports.activate = activate;
 function deactivate() { }

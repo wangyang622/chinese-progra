@@ -24,7 +24,8 @@
   },
   "activationEvents": [
     "onLanguage:chineseprog",
-    "onCommand:chineseprog.runCode"
+    "onCommand:chineseprog.runCode",
+    "onCommand:chineseprog.formatCode"
   ],
   "main": "./out/extension.js",
   "scripts": {
@@ -66,6 +67,11 @@
         "command": "chineseprog.runCode",
         "title": "Run Chinese Code",
         "category": "Chinese"
+      },
+      {
+        "command": "chineseprog.formatCode",
+        "title": "Format Chinese Code",
+        "category": "Chinese"
       }
     ],
     "menus": {
@@ -74,6 +80,11 @@
           "when": "editorLangId == chineseprog",
           "command": "chineseprog.runCode",
           "group": "navigation"
+        },
+        {
+          "when": "editorLangId == chineseprog",
+          "command": "chineseprog.formatCode",
+          "group": "1_modification"
         }
       ],
       "explorer/context": [
@@ -88,6 +99,11 @@
           "when": "editorLangId == chineseprog",
           "command": "chineseprog.runCode",
           "group": "navigation"
+        },
+        {
+          "when": "editorLangId == chineseprog",
+          "command": "chineseprog.formatCode",
+          "group": "1_modification"
         }
       ]
     },
@@ -107,6 +123,21 @@
           "type": "boolean",
           "default": true,
           "description": "启用代码诊断"
+        },
+        "chineseprog.formatOnSave": {
+          "type": "boolean",
+          "default": true,
+          "description": "保存时自动格式化中文代码"
+        },
+        "chineseprog.indentSize": {
+          "type": "number",
+          "default": 2,
+          "description": "缩进大小（空格数）"
+        },
+        "chineseprog.insertSpaces": {
+          "type": "boolean",
+          "default": true,
+          "description": "使用空格代替制表符缩进"
         }
       }
     }
